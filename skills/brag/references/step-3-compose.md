@@ -50,8 +50,8 @@ Create a short launch-style brag video for [App Name].
 Use the storyboard in `<output-dir>/brag-plan.md` as the creative contract.
 
 Scene summary:
-1. [Scene name] — [duration]s — [what must be seen / read]
-2. [Scene name] — [duration]s — [what must be seen / read]
+1. [Scene name] — [duration]s — [what must be seen / read]; shot: [grammar, layout, camera]
+2. [Scene name] — [duration]s — [what must be seen / read]; shot: [grammar, layout, camera]
 3. [...]
 
 ## Audio
@@ -75,6 +75,10 @@ Load the composition-building Hyperframes domain skills — `hyperframes-core` (
 Requirements:
 - Show at least one real UI, copy, or visual element from the source project.
 - Keep all text readable in the final render.
+- Keep each scene's planned shot grammar. Do not build one scene template and fill it per feature; no two consecutive scenes share layout, camera behavior and transition type.
+- Size stateful UI (toggled labels, counters, typed text) for its longest state and give single-line elements `white-space: nowrap` and a `data-single-line` attribute.
+- Before any code measures text (fit-to-width, auto-sizing) or a frame is captured, load every font face the composition uses with `document.fonts.load()` and throw if one is missing. `document.fonts.ready` alone does not load faces nothing has rendered yet. See `step-4-deliver.md` → "Layout sweep".
+- For a native app, copy the recorded footage from `<output-dir>/footage/` into `<output-dir>/composition/assets/footage/` and use it for the product scenes. Do not rebuild native screens in HTML.
 - Keep the video within 15-25 seconds.
 - Include the planned music/SFX layer unless audio was explicitly disabled or documented as intentionally silent.
 - Treat `/brag` audio notes as guidance, not a fixed cue sheet. Choose SFX after the visual animation exists.
@@ -206,5 +210,7 @@ Before moving to delivery, verify:
 - [ ] At least 1 major tween is beat-locked to a strong cue (a `strongCue`, or the highest-`strength` beat from `hyperframes beats`) within ±0.15s, marked `// beat-locked` (or natural timing was chosen for readability).
 - [ ] Sequential events (cards, stats, list items) snap to consecutive `beats[]` timestamps (±0.10s), marked `// beat-grid` (or natural timing was chosen for readability).
 - [ ] The composition shows at least one real UI, copy, or visual element from the project.
+- [ ] Every scene follows its planned shot grammar, and the video uses at least three of them.
+- [ ] Every font family and weight is loaded via `document.fonts.load()` and asserted before any measuring code runs.
 - [ ] Total duration is 15-25 seconds.
 - [ ] Hyperframes check passes, or any blocker is documented for the user.

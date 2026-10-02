@@ -31,6 +31,10 @@ What word, image, or motion earns the next 20 seconds?]
 Bullet points. Specific. "The altitude meter counting up." 
 Not "feature callouts."]
 
+## Through-line
+[The one story or user path the video follows. Which 1-2 features get most of
+the runtime, and which go into the fast montage.]
+
 ## Outro / punchline
 [How does it land? The final line. The beat before the logo.]
 
@@ -73,6 +77,7 @@ landing-page-only, write "none — landing-page only" and rely on Key moments in
 
 ### Scene 1 — [name] — [duration]s
 [What's on screen. What text appears. What product material must be referenced.]
+Shot: [grammar: kinetic type / camera over canvas / split screen / montage / match cut]; layout: [one phrase]; camera: [static / push / pan / follow]
 Sequential/interaction: [yes — describe what appears one by one or what interaction is simulated, e.g. "3 stat cards arrive one by one" or "cursor clicks the match button"; or none]
 Audio intent: [what the sound should do emotionally]
 Audio-coupled idea: [typed text, beat-aligned reveal, counter ticks, card-by-card sequence, simulated tap/swipe/type — or none]
@@ -81,6 +86,7 @@ Transition mood: [clean / hard / dramatic / soft / chaotic] → Scene 2
 
 ### Scene 2 — [name] — [duration]s
 [...]
+Shot: [grammar]; layout: [one phrase]; camera: [behavior]
 Sequential/interaction: [yes — describe it; or none]
 Audio intent: [what the sound should do emotionally]
 Audio-coupled idea: [type or none]
@@ -111,6 +117,22 @@ But adapt it. These are the right scene counts for each tone:
 | `cinematic` | 4-5 | Wide shots. Big type. Dramatic reveals. |
 | `app-store` | 4-6 | Feature cards. Clean reveals. No mess. |
 
+### One through-line, uneven runtime
+
+Pick one through-line: a story, or one user's path through the product. Give the 1-2 strongest features most of the runtime and put the rest into one fast montage (hard cuts, one shot per feature; a label still gets its reading floor from "Reading time" below). Do not give five features five equal chapters; that reads as a slideshow.
+
+### Variance across scenes
+
+No two consecutive scenes share layout, camera behavior and transition type. Use at least three shot grammars per video:
+
+- Full-screen kinetic type
+- A virtual camera moving over one large canvas
+- Split screen
+- Montage with hard cuts
+- Match cut (a shape, motion or position carries over the cut)
+
+A reusable scene template (text column left, mockup right, same enter and exit, a `01/05` counter) breaks this rule by construction. Fill in the `Shot:` line of every scene and check the sequence before moving on.
+
 ## Duration guidance
 
 Scene durations must sum to 15-25 seconds. Count them.
@@ -137,7 +159,7 @@ Two failure modes to design out at the plan stage:
 
 Every brag video must show something real from the product. Options, in preferred order:
 
-1. **Recreate a working-app moment** — the upload screen, the result view, the dashboard with real-looking content. Use real source from `app/`, `pages/`, or routed components — not just the landing page. This is the most compelling option whenever the product has a flow. The product *doing* its thing beats the product *describing* its thing.
+1. **Recreate a working-app moment** — the upload screen, the result view, the dashboard with real-looking content. Use real source from `app/`, `pages/`, or routed components — not just the landing page. This is the most compelling option whenever the product has a flow. The product *doing* its thing beats the product *describing* its thing. For a native app without a web build, this option means the footage recorded in Step 1 ("Native and mobile apps"), never screens rebuilt from source.
 2. **Recreate a UI element in HTML** — a hero card, swipe UI, progress meter, stat block. Strong when there is no flow to show.
 3. **Animate the core concept** — if the product is "taxis for taxis", animate two taxis where one is in the other. Pure graphic but grounded in the idea.
 4. **Text-forward sequence** — if the product is copy-driven (Psychologists for Chatbots), let the copy be the visual. Giant display type, minimal chrome.
@@ -204,6 +226,7 @@ Beat/cue sync is available for any track now (see `audio.md` → "Beat and cue s
 - 1-3 strong-cue timestamps to target for major visual moments — from the preset if bundled, otherwise note "to be detected at composition time."
 - Beat-grid windows for any sequential reveals in the storyboard.
 - A restraint note when the tone is deadpan, yc-parody, or otherwise quiet.
+- For generated music: generate and measure the track before fixing scene durations, then write the measured tempo, first beat, drop, break and end here (see `audio.md` → "Generated music and SFX").
 
 See `audio.md` for the cue sources, JSON schema, and beat-sync tolerances.
 
