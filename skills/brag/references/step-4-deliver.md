@@ -9,11 +9,62 @@ npx hyperframes check   # brag's single pre-render gate — fix every error it r
 
 Fix all errors. `check` is brag's single pre-render gate — run it and fix everything it reports, including WCAG contrast failures (they gate as errors, not warnings). Each contrast finding carries a suggested compliant color, so apply it or adjust within the palette family and re-run `check` — most fixes need no screenshot. There is no per-element contrast escape hatch for real text; the only bypass is `check --no-contrast`, which skips the entire WCAG pass (all-or-nothing), not a way to accept one borderline element. For exact contrast thresholds, layout escape hatches, and reporting details, follow the current hyperframes-cli `check` guidance. `check`'s layout pass backstops the "keep all text readable" creative law — fix any reported overflow.
 
-For a visual gut-check before rendering, optionally capture key frames:
+## Layout sweep (before render)
+
+`check` and sampled stills both miss text that overflows only in a later UI state (a button whose label grows from "Interest" to "Interest sent", a counter that gains a digit, typed text). Sweep the whole timeline programmatically. Run the sweep after `check` passes and render only once its report is empty.
+
+**1. Load every font face first.** `document.fonts.ready` resolves without loading faces nothing has rendered yet, so fit-to-width code and this sweep would measure the fallback font. In the composition, before any code measures text, and again in the sweep page before the first measurement:
+
+```js
+// Every family and weight the composition uses (brag-plan.md → Visual identity).
+const FACES = [["Sora", 800], ["Inter", 400], ["Inter", 600]];
+await Promise.all(FACES.map(async ([family, weight]) => {
+  const spec = `${weight} 16px "${family}"`;
+  const faces = await document.fonts.load(spec);
+  if (faces.length === 0 || !document.fonts.check(spec)) {
+    throw new Error(`Font face not loaded: ${family} ${weight}`);
+  }
+}));
+```
+
+`faces.length === 0` catches a family name with no matching `@font-face`, which `check()` alone reports as fine.
+
+**2. Step through the timeline.** Open the preview in a headless browser. Seek the composition to each time `t` with the mechanism the Hyperframes renderer uses (see `hyperframes-core`), wait two animation frames, and collect findings:
+
+```js
+function layoutFindings(t) {
+  const out = [];
+  for (const el of document.querySelectorAll("body *")) {
+    const hasText = [...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+    if (!hasText || !el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
+    const label = `${t.toFixed(2)}s <${el.tagName.toLowerCase()}> "${el.textContent.trim().slice(0, 40)}"`;
+    if (el.scrollWidth > el.clientWidth + 1) {
+      out.push(`${label}: scrollWidth ${el.scrollWidth} > clientWidth ${el.clientWidth}`);
+    }
+    if (el.matches("[data-single-line]")) {
+      const cs = getComputedStyle(el);
+      const line = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
+      const height = el.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      if (height > line * 1.5) out.push(`${label}: ${height}px tall, one line is ${line}px`);
+    }
+  }
+  return out;
+}
+```
+
+Sample every 0.25s across the full duration. Where an element is on screen for less than 0.5s (a dropdown, a toast, a flash label), sample at the render frame rate through that window, or the sweep steps over it.
+
+**3. Fix and repeat.** Size stateful UI for its longest state with `white-space: nowrap`, shorten copy, or enlarge the container. Re-run the sweep until it reports nothing.
+
+## Cross-scene variance check
+
+Per-frame polish does not show repetition across scenes. Capture one settled still per scene:
 
 ```bash
 npx hyperframes snapshot   # PNG key frames
 ```
+
+Look at the stills in order and ask for each pair: does scene N look like scene N-1 with new content? If two consecutive scenes share layout, camera behavior and transition type, change the shot grammar of one of them (see `step-2-plan.md` → "Variance across scenes") before rendering. Use the same stills as the visual gut-check for collisions and contrast.
 
 ## Preview
 

@@ -91,7 +91,7 @@ Generate the timestamp at the start of the run (`YYYY-MM-DD-HHmmss`) and use it 
 
 **Read:** [references/step-1-inspect.md](references/step-1-inspect.md)
 
-Scan the project directory and extract the information needed to plan the brag video.
+Scan the project directory and extract the information needed to plan the brag video. For a native or mobile app without a web build, get a screen recording before Step 2 (see "Native and mobile apps" in the reference).
 
 **Gate:** You can answer all 9 questions in the brag planning rubric.
 
@@ -127,9 +127,9 @@ Write the composition brief and use Hyperframes to create the video implementati
 
 **Read:** [references/step-4-deliver.md](references/step-4-deliver.md)
 
-Validate, preview, render to `<output-dir>/brag.mp4`, pick the best poster frame into `<output-dir>/brag.jpg`, bake that poster as the video's frame 0 so it's the idle thumbnail everywhere, and write `<output-dir>/share-copy.txt`.
+Validate with `hyperframes check`, the layout sweep and the cross-scene variance check, preview, render to `<output-dir>/brag.mp4`, pick the best poster frame into `<output-dir>/brag.jpg`, bake that poster as the video's frame 0 so it's the idle thumbnail everywhere, and write `<output-dir>/share-copy.txt`.
 
-**Gate:** `<output-dir>/brag.mp4` exists. A best-frame poster `<output-dir>/brag.jpg` is picked (not an arbitrary frame) and baked as frame 0 of `brag.mp4`. Share copy is written.
+**Gate:** The layout sweep reports nothing. `<output-dir>/brag.mp4` exists. A best-frame poster `<output-dir>/brag.jpg` is picked (not an arbitrary frame) and baked as frame 0 of `brag.mp4`. Share copy is written.
 
 ---
 
@@ -166,6 +166,8 @@ These apply to every brag video regardless of tone.
 **Show the thing.** At least one scene must display actual UI, copy, or a key visual from the product. No abstract filler.
 
 **No generic SaaS language.** "Streamline your workflow" is banned. Use the project's actual copy and claims.
+
+**Vary the shots.** No two consecutive scenes share layout, camera behavior and transition type. Use at least three shot grammars. The 1–2 strongest features get most of the runtime; the rest go into a fast montage.
 
 **The hook is everything.** The first 2 seconds determine whether someone keeps watching. Plan the hook before anything else.
 

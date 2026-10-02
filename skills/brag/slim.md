@@ -36,6 +36,10 @@ Read the code: the main page, styles (exact colors and fonts), README, routes an
 
 You have the source, so use it directly: import or render the project's real components, stylesheets, fonts, images and animations in the video instead of rebuilding them.
 
+Take colors from how the components use them (grep for the palette steps and theme overrides that actually occur), not from the palette definition, and port the product's own generators for avatars, placeholders and illustrations (check sibling apps in a monorepo) instead of drawing look-alikes.
+
+A native or mobile app (Expo, React Native, Swift, Kotlin, Flutter) with no web build can't be rendered that way: before planning, ask the user for a screen recording or record a running simulator (`xcrun simctl io booted recordVideo`, `maestro record --local`), check which theme the app uses by default, and never rebuild native screens from source.
+
 ### Website
 
 Get the site as a visitor sees it. Many sites build their page with JavaScript, so a plain download can come back as an almost empty shell. If it does, load the page in a headless browser to get the rendered result. Dismiss cookie banners and other overlays, and scroll section by section, since content that animates in on scroll stays blank in a single full-page capture.
@@ -58,6 +62,8 @@ If the user points at one part — a new version, a new feature, one angle — m
 
 **Shape:** Hook (2–3s) → Reveal (2–4s) → 2–3 sharp highlights → Punchline/outro (2–4s). A starting shape, not a template.
 
+Pick one through-line and give the 1–2 strongest features most of the runtime; the rest go into a fast montage, not a chapter each.
+
 ## Creative laws
 
 - **Short.** 15–25 seconds; 18–22 is the sweet spot.
@@ -66,6 +72,7 @@ If the user points at one part — a new version, a new feature, one angle — m
 - **Show the thing.** Reuse the real thing from the source — its UI, components, copy, images, videos and animations — rather than re-creating it. Rebuild only what you can't reuse. Prefer the working app doing its job over a landing page describing it. Small illustrative UI text is fine when showing the product in use (a filename, an "Exported" toast); invented claims, numbers, or testimonials are not. Never abstract filler.
 - **Specific.** It must feel made for this exact project. Use its own copy and claims; no generic SaaS language ("streamline your workflow" is banned).
 - **Readable.** Pace comes from motion and cuts, not from pulling text away early. Any line the viewer is meant to read stays fully visible and settled long enough to read it (roughly 0.3s per word), counted from when the whole line is on screen. Text that's only texture doesn't need to be read.
+- **Vary the shots.** No two consecutive scenes share layout, camera behavior and transition type; use at least three shot grammars (full-screen kinetic type, a virtual camera moving over one large canvas, split screen, hard-cut montage, match cut).
 - **Make it alive.** Things that appear one by one, simulated clicks, swipes, and typing beat static slides.
 - **Funny earns its place.** Humor comes from the project's own absurdity, not from trying.
 - **Every frame postable.** Any frozen frame should be worth sharing.
@@ -88,11 +95,15 @@ Presets are defaults; freeform direction ("fake Series A launch from 2016") refi
 
 Write the music and sound effects as one piece: effects in the same key and the same space as the music, blended in rather than laid on top. Give it a basic, proper mix, the way a real track is mixed: effects sit softly under the music, nothing harsh or spiky, and repeated little sounds stay in the background.
 
+If the music comes from a generator, generate it first, measure its tempo, beat phase and per-second RMS (drop, break, end), and lay the storyboard on the measured grid, not the requested one. Send sound-effect requests one at a time or about 4 in parallel, and retry on HTTP 429.
+
 ## 3. Build, check, render
 
-Build it with whatever works on this machine. If you draw the video in a browser, make every frame a pure function of time and wait for fonts and images to load before capturing each one.
+Build it with whatever works on this machine. If ffmpeg is missing, `npm i ffmpeg-static` ships one with libx264 and AAC. If Playwright wants a browser that isn't downloaded, point `executablePath` at a Chromium already in its cache (`~/Library/Caches/ms-playwright/` on macOS, `~/.cache/ms-playwright/` on Linux), and serve the composition from a small local HTTP server so `fetch()` of Lottie JSON and fonts works.
 
-Before the full render, look at stills from every scene *and* from mid-transition, and fix overflow, collisions, and low contrast. A plain crossfade between two busy layouts makes a muddy double exposure; stagger it (old content out, then new content in) or dip through the background. Then render `brag.mp4`.
+If you draw the video in a browser, make every frame a pure function of time and wait for images to load. `document.fonts.ready` skips faces nothing has rendered yet, so call `document.fonts.load()` for every family and weight the video uses and throw if `document.fonts.check()` fails for any of them; run all measuring code after that.
+
+Before the full render, step through the whole timeline every 0.25s and report every visible text element whose `scrollWidth` exceeds its `clientWidth`, or that is meant to be one line and is taller than one line; size stateful UI (toggled labels, counters, typed text) for its longest state with `white-space: nowrap`, and render only once the report is empty. Then look at stills from every scene *and* from mid-transition, fix collisions and low contrast, and check that no scene looks like the one before it with new content. A plain crossfade between two busy layouts makes a muddy double exposure; stagger it (old content out, then new content in) or dip through the background. Then render `brag.mp4`.
 
 ## 4. Deliver
 

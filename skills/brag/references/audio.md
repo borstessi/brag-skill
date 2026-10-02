@@ -296,6 +296,24 @@ If no source is available (no preset, no Python deps, and `hyperframes beats` no
 Music cue guidance: unavailable; continue without beat/cue sync.
 ```
 
+### Generated music and SFX
+
+When the music comes from a generator (ElevenLabs, Suno, or similar) instead of the bundled tracks, treat the returned file as a measurement target, not as a spec that was met. Generators usually keep the requested tempo but move the drop, the break and the ending by several seconds, and can go silent before the requested length.
+
+1. Request the tempo the edit will be cut on. Generate the track before fixing scene durations in `brag-plan.md`.
+2. Measure tempo and first-beat phase with `analyze_music_cues.py` or `hyperframes beats` (sources 2 and 3 above). Take both from a fit over the whole track, not from the first few seconds.
+3. Measure loudness per second to find the drop, the break and where the audio actually ends:
+
+   ```bash
+   ffmpeg -hide_banner -nostats -i <track>.mp3 \
+     -af "aresample=48000,asetnsamples=n=48000,astats=metadata=1:reset=1,ametadata=print:key=lavfi.astats.Overall.RMS_level:file=-" \
+     -f null - 2>/dev/null | paste - -
+   ```
+
+   Each line is one second (`pts_time`) with its RMS in dB. A jump of several dB marks a drop, a sustained dip a break, and `-inf` or a value far below the bed means silence.
+4. Lay the storyboard on the measured grid: scene cuts on measured beats, the main reveal on the measured drop, the outro before the measured end. If a section lands in the wrong place, re-cut the audio on beat boundaries with short crossfades (about 15 ms) instead of moving the picture.
+5. Generated SFX: send requests one at a time or at most about 4 in parallel, and retry HTTP 429 with backoff.
+
 ### Adding SFX elements
 
 Put the music bed on a low track and give each overlapping SFX its own ascending track-index (e.g. music at 10, SFX from 11 up). Never share a track-index between overlapping audio.

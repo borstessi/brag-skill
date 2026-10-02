@@ -27,6 +27,36 @@ Read these in priority order:
 
 7. **`public/` or `assets/`** — note any images, logos, icons. These can be referenced in the composition.
 
+8. **Generators for in-product assets.** Avatars, placeholders and illustrations a user sees in the product often come from a generator in the product's code; see "In-product assets" below.
+
+## Native and mobile apps: get footage first
+
+If the project is a native or mobile app (Expo, React Native, Swift/SwiftUI, Kotlin/Jetpack Compose, Flutter) and no web build renders its screens, the composition can't import its components. Do this before Step 2:
+
+1. Ask the user for a screen recording of the flow from question 9, or offer to record a running simulator yourself:
+
+   ```bash
+   mkdir -p <output-dir>/footage
+   xcrun simctl io booted recordVideo --codec=h264 <output-dir>/footage/ios.mp4   # iOS Simulator; Ctrl+C stops
+   adb shell screenrecord /sdcard/flow.mp4 && adb pull /sdcard/flow.mp4 <output-dir>/footage/   # Android; max 180s
+   maestro record --local <flow>.yaml <output-dir>/footage/flow.mp4               # scripted flow, rendered on this machine
+   ```
+
+   Without `--local`, `maestro record` uploads the recording for rendering. Don't do that with real account data on screen.
+
+2. Read the default theme from the project instead of choosing one:
+   - Expo: `userInterfaceStyle` in `app.json` / `app.config.*`
+   - iOS: `UIUserInterfaceStyle` in `Info.plist`
+   - Android: the app theme's parent in `styles.xml` / `themes.xml` (`DayNight` follows the system, `Light` or `Dark` is fixed)
+   - Flutter: `themeMode` on `MaterialApp`
+   - React Native: code that reads `useColorScheme()` or `Appearance`
+
+   If the theme follows the system, use the one the recording shows.
+
+3. Never rebuild native screens in HTML from source code, translation strings or theme tokens. Those reproduce the tokens, not the screens. Use the footage in the composition (cropped, framed in a device, zoomed on the key action) and build only type, transitions and the outro around it. Read durations for claims ("1:46 from sign-up to booking") off the recording.
+
+If the user can't provide footage and no simulator runs, say so and plan a text-forward or concept video (Step 2, "Choosing what to show", options 3 and 4) instead of invented screens.
+
 ## The 9-question rubric
 
 After reading, answer all nine. Write these down before moving to Step 2.
@@ -98,6 +128,22 @@ When reading CSS, look for custom properties like:
 
 If no custom properties exist, scan for the most-used colors in background, color, and border rules.
 
+### Usage beats definition
+
+A palette definition (Tailwind `primary-50` to `primary-900`, a design-token file) lists what the system *could* render. The brand is what the components *do* render. Count usage before picking colors:
+
+```bash
+# palette steps the components actually use; adjust the token name and source dirs
+grep -rhoE '\b(bg|text|border|ring|fill|stroke|from|via|to)-primary-[0-9]{2,3}(/[0-9]+)?\b' \
+  --exclude-dir=node_modules --exclude-dir=dist src app components | sort | uniq -c | sort -rn
+
+# CSS custom properties in use
+grep -rhoE 'var\(--[a-zA-Z0-9-]+\)' --exclude-dir=node_modules --exclude-dir=dist src app components \
+  | sort | uniq -c | sort -rn | head -30
+```
+
+Then read the theme's overrides and resolvers (`theme.extend` in the Tailwind config, a MUI/Chakra/styled-components theme object, the `ThemeProvider` value), because they replace palette steps at render time. A step that no component uses is not a brand color, even when it is defined.
+
 Write down:
 - Background color (exact value)
 - Primary text color
@@ -113,7 +159,20 @@ Look for:
 - Google Fonts `<link>` in `<head>` (the font families are in the URL query string)
 - `@import` statements
 
-Write down the display font (used for headings) and the body font separately.
+Write down the display font (used for headings) and the body font separately, with every weight the UI uses. Step 4 loads exactly these faces before any measurement.
+
+## In-product assets
+
+Search for generators of user-facing assets and port them into the composition instead of drawing look-alikes. Run it from the repo root; in a monorepo the generator often lives in a sibling app (an admin or manager app), not in the website:
+
+```bash
+grep -rIilE 'boring-avatars|@dicebear|jdenticon|minidenticons|identicon|blockies|avatar' \
+  --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' --include='*.vue' --include='*.svelte' \
+  --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=build .
+grep -lE 'boring-avatars|@dicebear|jdenticon|minidenticons' apps/*/package.json packages/*/package.json 2>/dev/null
+```
+
+Use the same library, variant and color set the product passes in.
 
 ## What to skip
 
